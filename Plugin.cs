@@ -1,6 +1,7 @@
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.NET.Common;
+using HarmonyLib;
 
 namespace JustUnknownCharacters;
 
@@ -11,8 +12,11 @@ public class Plugin : BasePlugin
 
     public override void Load()
     {
-        // Plugin startup logic
         Log = base.Log;
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+
+        // 注册拼音搜索 Harmony 补丁
+        HarmonyPatches.Apply();
+        Log.LogInfo("Pinyin search patches applied.");
     }
 }
