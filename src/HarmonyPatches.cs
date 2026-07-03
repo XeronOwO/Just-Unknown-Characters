@@ -1,18 +1,17 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using UnityEngine;
 
 namespace JustUnknownCharacters;
 
 /// <summary>
 /// HarmonyX 补丁 — 将拼音匹配注入合成界面搜索流程。
+/// 使用反射访问 Unity API，避免直接引用 UnityEngine.CoreModule 和 netstandard。
 /// </summary>
 public static class HarmonyPatches
 {
-    /// <summary>
-    /// 注册所有 Harmony 补丁。
-    /// </summary>
     public static void Apply()
     {
         var harmony = new Harmony("JustUnknownCharacters.pinyin");
@@ -24,12 +23,13 @@ public static class HarmonyPatches
     {
         private static FieldInfo _recipeObjectsField;
         private static FieldInfo _recipeItemFilterField;
+        private static MethodInfo _destroyMethod;
+        private static MethodInfo _getComponentMethod;
 
         [HarmonyPrefix]
         // ReSharper disable once InconsistentNaming
         internal static void Prefix(PlayerCamera __instance, out string __state)
         {
-            // 保存原始搜索文本，清空以绕过游戏的 string.Contains 过滤
             __state = __instance.recipeFilter;
             __instance.recipeFilter = "";
         }
@@ -42,28 +42,33 @@ public static class HarmonyPatches
             if (string.IsNullOrEmpty(filter))
                 return;
 
-            // 如果有物品过滤（拖拽物品查看配方），跳过文本筛选
             _recipeItemFilterField ??= AccessTools.Field(typeof(PlayerCamera), "recipeItemFilter");
             if (_recipeItemFilterField.GetValue(__instance) != null)
                 return;
 
-            // 获取私有字段 recipeObjects
             _recipeObjectsField ??= AccessTools.Field(typeof(PlayerCamera), "recipeObjects");
-            var recipeObjects = (List<GameObject>)_recipeObjectsField.GetValue(__instance);
+            var recipeObjects = (IList)_recipeObjectsField.GetValue(__instance);
 
-            // 收集需要移除的条目
-            var toRemove = new List<GameObject>();
+            // 延迟获取 GetComponent<T> 泛型方法
+            if (_getComponentMethod == null)
+            {
+                // GameObject 来自 UnityEngine.CoreModule，运行时通过 Assembly-CSharp 链式加载
+                var goType = recipeObjects[0].GetType();
+                _getComponentMethod = goType.GetMethod("GetComponent", Type.EmptyTypes);
+            }
+
+            var toRemove = new List<object>();
             foreach (var obj in recipeObjects)
             {
-                var tooltip = obj.GetComponent<UITooltip>();
+                var typedGetComponent = _getComponentMethod.MakeGenericMethod(typeof(UITooltip));
+                var tooltip = typedGetComponent.Invoke(obj, null);
                 if (tooltip == null) continue;
 
-                var simpleName = tooltip.tipName;
+                // UITooltip.tipName (public field)
+                var simpleName = (string)AccessTools.Field(typeof(UITooltip), "tipName").GetValue(tooltip);
                 if (string.IsNullOrEmpty(simpleName)) continue;
 
-                // 原有 Contains 匹配
-                var origMatch = simpleName.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0;
-                // 拼音匹配
+                var origMatch = simpleName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
                 var pinyinMatch = PinyinMatcher.Contains(simpleName, filter);
 
                 if (!origMatch && !pinyinMatch)
@@ -74,8 +79,18 @@ public static class HarmonyPatches
             foreach (var obj in toRemove)
             {
                 recipeObjects.Remove(obj);
-                Object.Destroy(obj);
+                Destroy(obj);
             }
+        }
+
+        private static void Destroy(object obj)
+        {
+            if (_destroyMethod == null)
+            {
+                var objectType = obj.GetType().Assembly.GetType("UnityEngine.Object");
+                _destroyMethod = AccessTools.Method(objectType, "Destroy", new[] { objectType });
+            }
+            _destroyMethod.Invoke(null, new[] { obj });
         }
     }
 }
