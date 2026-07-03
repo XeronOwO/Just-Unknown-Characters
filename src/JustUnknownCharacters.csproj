@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.NET.Framework.Launcher" Version="6.0.0-be.*" IncludeAssets="compile" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
+    <PackageReference Include="HarmonyX" Version="2.*" IncludeAssets="compile" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
