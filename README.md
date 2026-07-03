@@ -2,9 +2,10 @@
 
 Casualties Unknown（未知伤亡）的拼音搜索模组 — 在合成界面搜索框中支持使用拼音筛选中文配方。
 
-- **全拼**: `shengzi` → 纤维绳
-- **首字母**: `sz` → 纤维绳
-- **混合输入**: `绳zi`、`sheng子`
+- **全拼**: `xianweisheng` → 纤维绳
+- **首字母**: `xws` → 纤维绳
+- **单字拼音**: `sheng` → 纤维绳（匹配“绳”）
+- **混合输入**: `纤wei`、`xian维`
 
 ![拼音搜索效果展示](docs/pinyin-search-demo.png)
 
