@@ -1,6 +1,7 @@
 构建前，需将以下文件从游戏目录复制到此目录：
 
   CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll
+  CasualtiesUnknown_Data\Managed\UnityEngine.dll
   CasualtiesUnknown_Data\Managed\UnityEngine.CoreModule.dll
   CasualtiesUnknown_Data\Managed\netstandard.dll
 

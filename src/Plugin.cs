@@ -1,20 +1,18 @@
 using BepInEx;
 using BepInEx.Logging;
-using BepInEx.NET.Common;
 
 namespace JustUnknownCharacters;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-public class Plugin : BasePlugin
+public class Plugin : BaseUnityPlugin
 {
-	internal static new ManualLogSource Log;
+	internal static ManualLogSource Log { get; private set; }
 
-	public override void Load()
+	private void Awake()
 	{
-		Log = base.Log;
+		Log = base.Logger;
 		Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-		// 注册拼音搜索 Harmony 补丁
 		HarmonyPatches.Apply();
 		Log.LogInfo("Pinyin search patches applied.");
 	}
