@@ -46,6 +46,10 @@ dotnet clean src/JustUnknownCharacters.csproj
 dotnet format src/JustUnknownCharacters.csproj
 ```
 
+代码规范：
+- 使用 `using` 导入命名空间，禁止全限定名（如 `System.StringComparison`）
+- 局部变量优先 `var`
+
 如有不符合风格的代码，该命令会自动修复或报错。
 
 ## 项目结构

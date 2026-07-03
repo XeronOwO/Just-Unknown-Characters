@@ -10,6 +10,15 @@ namespace JustUnknownCharacters;
 public static class PinyinMatcher
 {
 	/// <summary>
+	/// 替换 string.Contains(string, StringComparison)，保留原始行为并叠加拼音匹配。
+	/// 供 Harmony Transpiler 注入使用。
+	/// </summary>
+	public static bool Match(string haystack, string needle, StringComparison comparison)
+	{
+		return haystack.IndexOf(needle, comparison) >= 0 || Contains(haystack, needle);
+	}
+
+	/// <summary>
 	/// 判断 <paramref name="name"/> 是否与 <paramref name="filter"/> 拼音匹配。
 	/// 会自动尝试每个起始位置，实现 Contains 语义。
 	/// </summary>
