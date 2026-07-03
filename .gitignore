@@ -61,3 +61,6 @@ CLAUDE.local.md
 
 # Visual Studio
 .vs/
+lib/*.dll
+lib/*.exe
+lib/*.pdb

@@ -29,26 +29,21 @@
     <EmbeddedResource Include="Resources\pinyin_data.txt" />
   </ItemGroup>
 
-  <!-- 游戏和框架 DLL 引用 -->
+  <!--
+    游戏和 Unity DLL（gitignored，开发者需从游戏目录手动复制到 ../lib/）
+    详见 ../lib/README.txt
+  -->
   <ItemGroup>
-    <!-- HarmonyX (BepInEx 内置) -->
-    <Reference Include="0Harmony">
-      <HintPath>E:\SteamLibrary\steamapps\common\Casualties Unknown Demo\BepInEx\core\0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <!-- 游戏主程序集 -->
     <Reference Include="Assembly-CSharp">
-      <HintPath>E:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <!-- Unity 核心模块 (GameObject, Object, MonoBehaviour) -->
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>E:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\lib\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <!-- netstandard 兼容层 (Unity Mono 内置) -->
     <Reference Include="netstandard">
-      <HintPath>E:\SteamLibrary\steamapps\common\Casualties Unknown Demo\CasualtiesUnknown_Data\Managed\netstandard.dll</HintPath>
+      <HintPath>..\lib\netstandard.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
