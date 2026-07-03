@@ -10,8 +10,8 @@ namespace JustUnknownCharacters;
 public static class PinyinMatcher
 {
 	/// <summary>
-	/// 替换 string.Contains(string, StringComparison)，保留原始行为并叠加拼音匹配。
-	/// 供 Harmony Transpiler 注入使用。
+	/// 保留原始 Contains 行为并叠加拼音匹配。
+	/// 供 Harmony Transpiler 使用。
 	/// </summary>
 	public static bool Match(string haystack, string needle, StringComparison comparison)
 	{
@@ -20,7 +20,7 @@ public static class PinyinMatcher
 
 	/// <summary>
 	/// 判断 <paramref name="name"/> 是否与 <paramref name="filter"/> 拼音匹配。
-	/// 会自动尝试每个起始位置，实现 Contains 语义。
+	/// 从 name 的每个位置开始尝试，实现 Contains 语义。
 	/// </summary>
 	public static bool Contains(string name, string filter)
 	{
@@ -29,42 +29,31 @@ public static class PinyinMatcher
 		if (string.IsNullOrEmpty(name))
 			return false;
 
-		// 尝试从 name 的每个位置开始匹配
 		for (var start = 0; start < name.Length; start++)
-		{
 			if (MatchFrom(name, start, filter, 0))
 				return true;
-		}
 		return false;
 	}
 
 	/// <summary>
-	/// 递归回溯匹配核心。
+	/// 递归回溯匹配。name 耗尽返回 true（支持部分匹配，如 sh→绳）。
 	/// </summary>
-	/// <param name="name">配方名（含中文）</param>
-	/// <param name="namePos">当前在 name 中的位置</param>
-	/// <param name="filter">用户输入的搜索文本</param>
-	/// <param name="filterPos">当前在 filter 中的位置</param>
 	private static bool MatchFrom(string name, int namePos, string filter, int filterPos)
 	{
-		// filter 全部匹配完成 → 成功
 		if (filterPos >= filter.Length)
 			return true;
-		// name 耗尽但 filter 还有剩余 → 失败
 		if (namePos >= name.Length)
-			return false;
+			return true;
 
 		var nameChar = name[namePos];
 		var filterChar = filter[filterPos];
 
-		// 1. 直接字符匹配（中文对中文、英文对英文）
+		// 直接字符匹配
 		if (CharsEqualIgnoreCase(nameChar, filterChar))
-		{
 			if (MatchFrom(name, namePos + 1, filter, filterPos + 1))
 				return true;
-		}
 
-		// 2. 如果当前字是汉字，尝试拼音匹配
+		// 拼音匹配
 		if (IsChinese(nameChar))
 		{
 			var pinyins = PinyinDict.GetPinyins(nameChar);
@@ -72,32 +61,25 @@ public static class PinyinMatcher
 
 			foreach (var py in pinyins)
 			{
-				// 2a. 全拼匹配
+				// 全拼
 				if (remaining.StartsWith(py, StringComparison.OrdinalIgnoreCase))
-				{
 					if (MatchFrom(name, namePos + 1, filter, filterPos + py.Length))
 						return true;
-				}
 
-				// 2b. 首字母匹配
+				// 首字母
 				if (CharsEqualIgnoreCase(filterChar, py[0]))
-				{
 					if (MatchFrom(name, namePos + 1, filter, filterPos + 1))
 						return true;
-				}
 			}
 		}
 
 		return false;
 	}
 
-	/// <summary>
-	/// 判断字符是否为 CJK 统一表意文字（基本区 + 扩展 A 区）。
-	/// </summary>
 	private static bool IsChinese(char c)
 	{
-		return (c >= 0x4E00 && c <= 0x9FFF)   // CJK Unified Ideographs
-			|| (c >= 0x3400 && c <= 0x4DBF);   // CJK Extension A
+		return (c >= 0x4E00 && c <= 0x9FFF)
+			|| (c >= 0x3400 && c <= 0x4DBF);
 	}
 
 	private static bool CharsEqualIgnoreCase(char a, char b)

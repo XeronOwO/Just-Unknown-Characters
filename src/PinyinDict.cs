@@ -29,13 +29,11 @@ public static class PinyinDict
 			if (line.Length < 4) continue;
 
 			var ch = line[0];
-			// 跳过 ": " 前缀取拼音部分
 			var pinyinPart = line.Substring(2).TrimStart(' ', ':');
 
 			var rawParts = pinyinPart.Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
 			if (rawParts.Length == 0) continue;
 
-			// 去声调数字，去重
 			var cleaned = new List<string>(rawParts.Length);
 			foreach (var raw in rawParts)
 			{
@@ -49,9 +47,6 @@ public static class PinyinDict
 		}
 	}
 
-	/// <summary>
-	/// 获取汉字的所有拼音（已去声调）。非汉字或未知字返回空数组。
-	/// </summary>
 	public static string[] GetPinyins(char c)
 	{
 		Map.TryGetValue(c, out var result);

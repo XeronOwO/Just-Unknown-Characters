@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Reflection.Emit;
 using HarmonyLib;
+using UnityEngine;
 
 namespace JustUnknownCharacters;
 
@@ -11,37 +10,69 @@ public static class HarmonyPatches
 	public static void Apply()
 	{
 		var harmony = new Harmony("JustUnknownCharacters.pinyin");
-
-		foreach (var method in typeof(PlayerCamera).GetMethods(
-			BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public))
-		{
-			if (!method.Name.Contains("<RefreshRecipeList>"))
-				continue;
-
-			Plugin.Log.LogInfo($"Patching lambda: {method.Name}");
-			harmony.Patch(method,
-				transpiler: new HarmonyMethod(typeof(Patch_StringContains).GetMethod("Transpiler")));
-		}
+		harmony.PatchAll(typeof(Patch_RefreshRecipeList));
 	}
 
-	private static class Patch_StringContains
+	[HarmonyPatch(typeof(PlayerCamera), "RefreshRecipeList")]
+	private static class Patch_RefreshRecipeList
 	{
-		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		private static FieldInfo _recipeObjectsField;
+		private static FieldInfo _recipeItemFilterField;
+		private static FieldInfo _recipeListContentField;
+
+		[HarmonyPrefix]
+		internal static void Prefix(PlayerCamera __instance, out string __state)
 		{
-			var containsMethod = AccessTools.Method(
-				typeof(string), "Contains",
-				new[] { typeof(string), typeof(StringComparison) });
+			__state = __instance.recipeFilter;
+			if (!string.IsNullOrEmpty(__state))
+				__instance.recipeFilter = "";
+		}
 
-			var replacement = AccessTools.Method(
-				typeof(PinyinMatcher), nameof(PinyinMatcher.Match));
+		[HarmonyPostfix]
+		internal static void Postfix(PlayerCamera __instance, string __state)
+		{
+			var filter = __state;
+			if (string.IsNullOrEmpty(filter))
+				return;
 
-			foreach (var inst in instructions)
+			_recipeItemFilterField ??= AccessTools.Field(typeof(PlayerCamera), "recipeItemFilter");
+			if (_recipeItemFilterField.GetValue(__instance) != null)
+				return;
+
+			_recipeObjectsField ??= AccessTools.Field(typeof(PlayerCamera), "recipeObjects");
+			_recipeListContentField ??= AccessTools.Field(typeof(PlayerCamera), "recipeListContent");
+
+			var recipeObjects = (List<GameObject>)_recipeObjectsField.GetValue(__instance);
+			var content = (RectTransform)_recipeListContentField.GetValue(__instance);
+
+			var toKeep = new List<GameObject>();
+			foreach (var obj in recipeObjects)
 			{
-				if (inst.Calls(containsMethod))
-					yield return new CodeInstruction(OpCodes.Call, replacement);
+				var tooltip = obj.GetComponent<UITooltip>();
+				var name = tooltip != null ? tooltip.tipName : null;
+				if (string.IsNullOrEmpty(name))
+				{
+					toKeep.Add(obj);
+					continue;
+				}
+
+				var match = name.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0
+					|| PinyinMatcher.Contains(name, filter);
+
+				if (match)
+					toKeep.Add(obj);
 				else
-					yield return inst;
+					Object.Destroy(obj);
 			}
+
+			recipeObjects.Clear();
+			recipeObjects.AddRange(toKeep);
+
+			for (var i = 0; i < recipeObjects.Count; i++)
+				recipeObjects[i].GetComponent<RectTransform>().anchoredPosition =
+					new Vector2(-9f, -i * 64f);
+
+			content.sizeDelta = new Vector2(1f, recipeObjects.Count * 64f);
 		}
 	}
 }

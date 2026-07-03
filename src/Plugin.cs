@@ -1,3 +1,4 @@
+using System;
 using BepInEx;
 using BepInEx.Logging;
 
@@ -13,7 +14,15 @@ public class Plugin : BaseUnityPlugin
 		Log = base.Logger;
 		Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-		HarmonyPatches.Apply();
-		Log.LogInfo("Pinyin search patches applied.");
+		try
+		{
+			HarmonyPatches.Apply();
+			Log.LogInfo("Pinyin search patches applied.");
+		}
+		catch (Exception ex)
+		{
+			Log.LogError($"Failed to apply patches: {ex.GetType().Name}: {ex.Message}");
+			Log.LogError($"Stack: {ex.StackTrace}");
+		}
 	}
 }
