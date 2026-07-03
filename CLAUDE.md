@@ -66,6 +66,7 @@ src/
   PinyinDict.cs               — 拼音字典加载，含拼音拆分与模糊音生成
   Resources/
     pinyin_data.txt           — PinIn 汉字→拼音映射字典
+```
 
 ## 插件元数据
 
