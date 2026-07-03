@@ -11,6 +11,7 @@ public static class HarmonyPatches
 	{
 		var harmony = new Harmony("JustUnknownCharacters.pinyin");
 		harmony.PatchAll(typeof(Patch_RefreshRecipeList));
+		Plugin.Log.LogInfo("Patches applied.");
 	}
 
 	[HarmonyPatch(typeof(PlayerCamera), "RefreshRecipeList")]
