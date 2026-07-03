@@ -58,3 +58,6 @@ nunit-*.xml
 
 # Local Claude config (may contain personal paths)
 CLAUDE.local.md
+
+# Visual Studio
+.vs/

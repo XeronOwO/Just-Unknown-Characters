@@ -28,18 +28,18 @@ public static class PinyinDict
         {
             if (line.Length < 4) continue;
 
-            char ch = line[0];
+            var ch = line[0];
             // 跳过 ": " 前缀取拼音部分
-            string pinyinPart = line.Substring(2).TrimStart(' ', ':');
+            var pinyinPart = line.Substring(2).TrimStart(' ', ':');
 
-            string[] rawParts = pinyinPart.Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
+            var rawParts = pinyinPart.Split(new[] { ", " }, System.StringSplitOptions.RemoveEmptyEntries);
             if (rawParts.Length == 0) continue;
 
             // 去声调数字，去重
             var cleaned = new List<string>(rawParts.Length);
-            foreach (string raw in rawParts)
+            foreach (var raw in rawParts)
             {
-                string clean = raw.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+                var clean = raw.TrimEnd('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
                 if (clean.Length > 0 && !cleaned.Contains(clean))
                     cleaned.Add(clean);
             }

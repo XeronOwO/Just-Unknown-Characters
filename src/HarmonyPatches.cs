@@ -11,7 +11,7 @@ namespace JustUnknownCharacters;
 public static class HarmonyPatches
 {
     /// <summary>
-    /// 在 Harmony.CreateAndPatchAll 中注册所有补丁。
+    /// 注册所有 Harmony 补丁。
     /// </summary>
     public static void Apply()
     {
@@ -38,7 +38,7 @@ public static class HarmonyPatches
         // ReSharper disable once InconsistentNaming
         internal static void Postfix(PlayerCamera __instance, string __state)
         {
-            string filter = __state;
+            var filter = __state;
             if (string.IsNullOrEmpty(filter))
                 return;
 
@@ -53,25 +53,25 @@ public static class HarmonyPatches
 
             // 收集需要移除的条目
             var toRemove = new List<GameObject>();
-            foreach (GameObject obj in recipeObjects)
+            foreach (var obj in recipeObjects)
             {
                 var tooltip = obj.GetComponent<UITooltip>();
                 if (tooltip == null) continue;
 
-                string simpleName = tooltip.tipName;
+                var simpleName = tooltip.tipName;
                 if (string.IsNullOrEmpty(simpleName)) continue;
 
                 // 原有 Contains 匹配
-                bool origMatch = simpleName.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0;
+                var origMatch = simpleName.IndexOf(filter, System.StringComparison.OrdinalIgnoreCase) >= 0;
                 // 拼音匹配
-                bool pinyinMatch = PinyinMatcher.Contains(simpleName, filter);
+                var pinyinMatch = PinyinMatcher.Contains(simpleName, filter);
 
                 if (!origMatch && !pinyinMatch)
                     toRemove.Add(obj);
             }
 
             // 销毁不匹配的条目
-            foreach (GameObject obj in toRemove)
+            foreach (var obj in toRemove)
             {
                 recipeObjects.Remove(obj);
                 Object.Destroy(obj);

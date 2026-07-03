@@ -21,7 +21,7 @@ public static class PinyinMatcher
             return false;
 
         // 尝试从 name 的每个位置开始匹配
-        for (int start = 0; start < name.Length; start++)
+        for (var start = 0; start < name.Length; start++)
         {
             if (MatchFrom(name, start, filter, 0))
                 return true;
@@ -45,8 +45,8 @@ public static class PinyinMatcher
         if (namePos >= name.Length)
             return false;
 
-        char nameChar = name[namePos];
-        char filterChar = filter[filterPos];
+        var nameChar = name[namePos];
+        var filterChar = filter[filterPos];
 
         // 1. 直接字符匹配（中文对中文、英文对英文）
         if (CharsEqualIgnoreCase(nameChar, filterChar))
@@ -58,10 +58,10 @@ public static class PinyinMatcher
         // 2. 如果当前字是汉字，尝试拼音匹配
         if (IsChinese(nameChar))
         {
-            string[] pinyins = PinyinDict.GetPinyins(nameChar);
-            string remaining = filter.Substring(filterPos);
+            var pinyins = PinyinDict.GetPinyins(nameChar);
+            var remaining = filter.Substring(filterPos);
 
-            foreach (string py in pinyins)
+            foreach (var py in pinyins)
             {
                 // 2a. 全拼匹配
                 if (remaining.StartsWith(py, StringComparison.OrdinalIgnoreCase))
