@@ -1,7 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.NET.Common;
-using HarmonyLib;
 
 namespace JustUnknownCharacters;
 

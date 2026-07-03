@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <!--
-    游戏和 Unity DLL（gitignored，开发者需从游戏目录手动复制到 ../lib/）
+    游戏 DLL（gitignored，开发者需从游戏目录手动复制到 ../lib/）
     详见 ../lib/README.txt
   -->
   <ItemGroup>
