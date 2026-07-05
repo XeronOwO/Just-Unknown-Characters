@@ -33,6 +33,7 @@ public static class HarmonyPatches
 		internal static void Postfix(PlayerCamera __instance, string __state)
 		{
 			var filter = __state;
+			__instance.recipeFilter = filter;
 			if (string.IsNullOrEmpty(filter))
 				return;
 
