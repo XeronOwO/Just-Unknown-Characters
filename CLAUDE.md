@@ -109,6 +109,22 @@ NuGet 源除了 nuget.org 外还包括：
 - `BaseUnityPlugin.Logger` 是 `ManualLogSource`，启动后赋值给静态属性供全局使用
 - 目标 `net452` 是为了兼容 Unity 的 Mono 运行时
 
+### Harmony 补丁规范
+
+**状态恢复规则**：Prefix 若修改了目标实例的字段来绕过原方法逻辑，Postfix 必须在结束时恢复该字段的原始值。不恢复会导致字段持久损坏，影响游戏在其他地方的读取（如 UI 更新、后续刷新等）。
+
+典型模式：
+```csharp
+// Prefix: 保存原值，清除字段，让原方法跳过过滤
+__state = __instance.someField;
+__instance.someField = default;
+
+// Postfix: 恢复原值（无论是否为空都要恢复），再做自定义逻辑
+__instance.someField = __state;
+if (string.IsNullOrEmpty(__state)) return;
+// ... 自定义过滤 / 逻辑
+```
+
 ## 致谢
 
 本模组的拼音匹配算法和字典数据来源于 [Just Enough Characters](https://github.com/Towdium/JustEnoughCharacters)（Minecraft 模组）及其核心库 [PinIn](https://github.com/Towdium/PinIn)，由 [Towdium](https://github.com/Towdium) 开发。
