@@ -76,6 +76,14 @@ src/
 - **名称**: `JustUnknownCharacters`
 - **版本**: `1.0.0`
 
+### ConfigurationManager URL 链接
+
+插件通过 `.csproj` 的 `<Description>` 属性在 DLL 元数据中嵌入 N 网链接。若玩家安装了 [BepInEx.ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager)（v18.x），该管理器会读取 DLL 的 FileVersionInfo 元数据（扫描顺序：CompanyName → FileDescription → Comments → LegalCopyright → LegalTrademarks），将第一个有效绝对 URI 显示为可点击的 "URL" 按钮。
+
+- **N 网链接**: `https://www.nexusmods.com/scavprototype/mods/402`
+- **存储位置**: `.csproj` 的 `<Description>`（映射为 `AssemblyDescriptionAttribute` → `FileVersionInfo.Comments`）
+- **更新链接时**: 只需修改 `.csproj` 中的 `<Description>` 值
+
 ## 依赖
 
 ### NuGet 包

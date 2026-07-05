@@ -5,6 +5,7 @@
     <AssemblyName>JustUnknownCharacters</AssemblyName>
     <Product>JustUnknownCharacters</Product>
     <Version>1.0.0</Version>
+    <Description>https://www.nexusmods.com/scavprototype/mods/402</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
